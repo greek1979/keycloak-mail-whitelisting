@@ -25,7 +25,7 @@ public abstract class RegistrationUserCreationDomainValidation extends Registrat
 
    @Override
    public boolean isConfigurable() {
-        return true;
+      return true;
    }
 
    @Override
@@ -71,10 +71,9 @@ public abstract class RegistrationUserCreationDomainValidation extends Registrat
       List<FormMessage> errors = new ArrayList<>();
       String email = formData.getFirst(Validation.FIELD_EMAIL);
 
-      AuthenticatorConfigModel mailDomainConfig = context.getAuthenticatorConfig();
       String eventError = Errors.INVALID_REGISTRATION;
 
-      if(email == null){
+      if (email == null){
          context.getEvent().detail(Details.EMAIL, email);
          errors.add(new FormMessage(RegistrationPage.FIELD_EMAIL, Messages.INVALID_EMAIL));
          context.error(eventError);
@@ -82,7 +81,7 @@ public abstract class RegistrationUserCreationDomainValidation extends Registrat
          return;
       }
 
-      String[] domainList = getDomainList(mailDomainConfig);
+      List<String> domainList = getDomainList(context);
 
       boolean emailDomainValid = isEmailValid(email, domainList);
 
@@ -98,8 +97,12 @@ public abstract class RegistrationUserCreationDomainValidation extends Registrat
       }
    }
 
-   public abstract String[] getDomainList(AuthenticatorConfigModel mailDomainConfig);
+   public List<String> getDomainList(ValidationContext validationContext) {
+      return getDomainList(validationContext.getAuthenticatorConfig());
+   }
 
-   public abstract boolean isEmailValid(String email, String[] domains);
+   public abstract List<String> getDomainList(AuthenticatorConfigModel mailDomainConfig);
+
+   public abstract boolean isEmailValid(String email, List<String> domains);
 }
 

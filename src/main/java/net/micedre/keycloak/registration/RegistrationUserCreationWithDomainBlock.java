@@ -21,15 +21,15 @@ public class RegistrationUserCreationWithDomainBlock extends RegistrationUserCre
       ProviderConfigProperty property;
       property = new ProviderConfigProperty();
       property.setName(domainListConfigName);
-      property.setLabel("Invalid domain for emails");
+      property.setLabel("Blacklisted e-mail domains");
       property.setType(ProviderConfigProperty.TEXT_TYPE);
-      property.setHelpText("List mail domains not authorized to register, separated by '##' or new line");
+      property.setHelpText("List mail domains not authorized to register, separated by '##' or new line.");
       CONFIG_PROPERTIES.add(property);
    }
 
    @Override
    public String getDisplayType() {
-        return "Profile Validation with domain block";
+        return "Profile Validation with Blacklisted Domains";
    }
 
    @Override
@@ -50,17 +50,21 @@ public class RegistrationUserCreationWithDomainBlock extends RegistrationUserCre
    @Override
    public void buildPage(FormContext context, LoginFormsProvider form) {
       List<String> unauthorizedMailDomains = Arrays.asList(
-         context.getAuthenticatorConfig().getConfig().getOrDefault(domainListConfigName, DEFAULT_DOMAIN_LIST).split(DOMAIN_LIST_SEPARATOR));
+         context.getAuthenticatorConfig().getConfig()
+         .getOrDefault(domainListConfigName, DEFAULT_DOMAIN_LIST)
+         .split(DOMAIN_LIST_SEPARATOR));
       form.setAttribute("unauthorizedMailDomains", unauthorizedMailDomains);
    }
 
    @Override
-   public String[] getDomainList(AuthenticatorConfigModel mailDomainConfig) {
-      return mailDomainConfig.getConfig().getOrDefault(domainListConfigName, DEFAULT_DOMAIN_LIST).split(DOMAIN_LIST_SEPARATOR);
+   public List<String> getDomainList(AuthenticatorConfigModel mailDomainConfig) {
+      return List.of(mailDomainConfig.getConfig()
+         .getOrDefault(domainListConfigName, DEFAULT_DOMAIN_LIST)
+         .split(DOMAIN_LIST_SEPARATOR));
    }
 
    @Override
-   public boolean isEmailValid(String email, String[] domains) {
+   public boolean isEmailValid(String email, List<String> domains) {
       for (String domain : domains) {
          if (email.endsWith("@" + domain) || email.equals(domain) || globmatches(email, "*@" + domain)) {
             return false;
